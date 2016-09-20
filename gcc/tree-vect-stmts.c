@@ -2039,7 +2039,7 @@ vectorizable_mask_load_store (gimple *stmt, gimple_stmt_iterator *gsi,
   if (slp_node != NULL)
     return false;
 
-  ncopies = LOOP_VINFO_VECT_FACTOR (loop_vinfo) / nunits;
+  ncopies = vect_get_num_copies (loop_vinfo, vectype);
   gcc_assert (ncopies >= 1);
 
   mask = gimple_call_arg (stmt, 2);
@@ -2473,7 +2473,7 @@ vectorizable_bswap (gimple *stmt, gimple_stmt_iterator *gsi,
   if (slp_node)
     ncopies = 1;
   else
-    ncopies = LOOP_VINFO_VECT_FACTOR (loop_vinfo) / nunits;
+    ncopies = vect_get_num_copies (loop_vinfo, vectype);
 
   gcc_assert (ncopies >= 1);
 
@@ -2806,9 +2806,9 @@ vectorizable_call (gimple *gs, gimple_stmt_iterator *gsi, gimple **vec_stmt,
   if (slp_node)
     ncopies = 1;
   else if (modifier == NARROW && ifn == IFN_LAST)
-    ncopies = LOOP_VINFO_VECT_FACTOR (loop_vinfo) / nunits_out;
+    ncopies = vect_get_num_copies (loop_vinfo, vectype_out);
   else
-    ncopies = LOOP_VINFO_VECT_FACTOR (loop_vinfo) / nunits_in;
+    ncopies = vect_get_num_copies (loop_vinfo, vectype_in);
 
   /* Sanity check: make sure that at least one copy of the vectorized stmt
      needs to be generated.  */
@@ -4205,9 +4205,9 @@ vectorizable_conversion (gimple *stmt, gimple_stmt_iterator *gsi,
   if (slp_node)
     ncopies = 1;
   else if (modifier == NARROW)
-    ncopies = LOOP_VINFO_VECT_FACTOR (loop_vinfo) / nunits_out;
+    ncopies = vect_get_num_copies (loop_vinfo, vectype_out);
   else
-    ncopies = LOOP_VINFO_VECT_FACTOR (loop_vinfo) / nunits_in;
+    ncopies = vect_get_num_copies (loop_vinfo, vectype_in);
 
   /* Sanity check: make sure that at least one copy of the vectorized stmt
      needs to be generated.  */
@@ -4691,7 +4691,7 @@ vectorizable_assignment (gimple *stmt, gimple_stmt_iterator *gsi,
   if (slp_node)
     ncopies = 1;
   else
-    ncopies = LOOP_VINFO_VECT_FACTOR (loop_vinfo) / nunits;
+    ncopies = vect_get_num_copies (loop_vinfo, vectype);
 
   gcc_assert (ncopies >= 1);
 
@@ -4949,7 +4949,7 @@ vectorizable_shift (gimple *stmt, gimple_stmt_iterator *gsi,
   if (slp_node)
     ncopies = 1;
   else
-    ncopies = LOOP_VINFO_VECT_FACTOR (loop_vinfo) / nunits_in;
+    ncopies = vect_get_num_copies (loop_vinfo, vectype);
 
   gcc_assert (ncopies >= 1);
 
@@ -5380,7 +5380,7 @@ vectorizable_operation (gimple *stmt, gimple_stmt_iterator *gsi,
   if (slp_node)
     ncopies = 1;
   else
-    ncopies = LOOP_VINFO_VECT_FACTOR (loop_vinfo) / nunits_in;
+    ncopies = vect_get_num_copies (loop_vinfo, vectype);
 
   gcc_assert (ncopies >= 1);
 
@@ -5719,7 +5719,7 @@ vectorizable_store (gimple *stmt, gimple_stmt_iterator *gsi, gimple **vec_stmt,
   if (slp)
     ncopies = 1;
   else
-    ncopies = LOOP_VINFO_VECT_FACTOR (loop_vinfo) / nunits;
+    ncopies = vect_get_num_copies (loop_vinfo, vectype);
 
   gcc_assert (ncopies >= 1);
 
@@ -6715,7 +6715,7 @@ vectorizable_load (gimple *stmt, gimple_stmt_iterator *gsi, gimple **vec_stmt,
   if (slp)
     ncopies = 1;
   else
-    ncopies = LOOP_VINFO_VECT_FACTOR (loop_vinfo) / nunits;
+    ncopies = vect_get_num_copies (loop_vinfo, vectype);
 
   gcc_assert (ncopies >= 1);
 
@@ -7926,13 +7926,12 @@ vectorizable_condition (gimple *stmt, gimple_stmt_iterator *gsi,
     return false;
 
   tree vectype = STMT_VINFO_VECTYPE (stmt_info);
-  int nunits = TYPE_VECTOR_SUBPARTS (vectype);
   tree vectype1 = NULL_TREE, vectype2 = NULL_TREE;
 
   if (slp_node)
     ncopies = 1;
   else
-    ncopies = LOOP_VINFO_VECT_FACTOR (loop_vinfo) / nunits;
+    ncopies = vect_get_num_copies (loop_vinfo, vectype);
 
   gcc_assert (ncopies >= 1);
   if (reduc_index && ncopies > 1)
@@ -8269,9 +8268,9 @@ vectorizable_comparison (gimple *stmt, gimple_stmt_iterator *gsi,
   if (slp_node)
     ncopies = 1;
   else
-    ncopies = LOOP_VINFO_VECT_FACTOR (loop_vinfo) / nunits;
-
+    ncopies = vect_get_num_copies (loop_vinfo, vectype);
   gcc_assert (ncopies >= 1);
+
   if (STMT_VINFO_DEF_TYPE (stmt_info) != vect_internal_def
       && !(STMT_VINFO_DEF_TYPE (stmt_info) == vect_nested_cycle
 	   && reduc_def))
