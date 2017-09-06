@@ -9105,8 +9105,7 @@ get_vectype_for_scalar_type_and_size (tree scalar_type, unsigned size)
   else if (!mode_for_vector (inner_mode, size / nbytes).exists (&simd_mode))
     return NULL_TREE;
   nunits = GET_MODE_SIZE (simd_mode) / nbytes;
-  /* NOTE: nunits == 1 is allowed to support single element vector types.  */
-  if (nunits < 1)
+  if (nunits <= 1)
     return NULL_TREE;
 
   vectype = build_vector_type (scalar_type, nunits);
